@@ -1,8 +1,8 @@
-using Microsoft.AspNetCore.Authentication.Negotiate;
-
+using UserManagement.API.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.AddDataBase();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
