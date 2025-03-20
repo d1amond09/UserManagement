@@ -12,5 +12,4 @@ public class UserRepository(AppDbContext db) : RepositoryBase<User>(db), IUserRe
 	public async Task<User?> GetByIdAsync(Guid id, bool trackChanges) =>
 		await FindByCondition(c => c.Id.Equals(id), trackChanges)
 			 .SingleOrDefaultAsync();
-
 }

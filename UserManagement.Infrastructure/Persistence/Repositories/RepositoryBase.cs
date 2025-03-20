@@ -21,5 +21,7 @@ public abstract class RepositoryBase<T>(AppDbContext db) : IRepositoryBase<T> wh
 	public void Create(T entity) => _db.Set<T>().Add(entity);
 	public void Update(T entity) => _db.Set<T>().Update(entity);
 	public void Delete(T entity) => _db.Set<T>().Remove(entity);
+
+	public async Task CreateAsync(T entity) => await _db.Set<T>().AddAsync(entity);
 	public Task SaveAsync() => _db.SaveChangesAsync();
 }
