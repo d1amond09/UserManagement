@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore;
-using System.Reflection.Emit;
 using UserManagement.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace UserManagement.Infrastructure.Persistence.Configurations;
 
@@ -22,10 +21,11 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 			.IsRequired();
 
 		builder.Property(e => e.Id)
-				  .HasColumnType("BINARY(16)")
-				  .HasConversion(
-					  v => v.ToByteArray(), 
-					  v => new Guid(v));
+			.HasColumnType("BINARY(16)")
+			.HasConversion(
+				v => v.ToByteArray(), 
+				v => new Guid(v)
+			);
 
 		builder.Property(e => e.IsBlocked)
 			.HasDefaultValueSql("'0'")
