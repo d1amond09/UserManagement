@@ -6,6 +6,7 @@ public interface IUserRepository
 {
 	Task<IEnumerable<User>> GetAllAsync(bool trackChanges);
 	Task<User?> GetByIdAsync(Guid id, bool trackChanges);
+	Task<IEnumerable<User>> GetByIdsAsync(IEnumerable<Guid> ids, bool trackChanges);
 	Task<User?> GetByEmailAsync(string email, bool trackChanges);
 	Task CreateAsync(User user);
 

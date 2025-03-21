@@ -16,4 +16,8 @@
     <ProjectReference Include="..\UserManagement.Domain\UserManagement.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="UseCases\Users\UnblockUsers\" />
+  </ItemGroup>
+
 </Project>

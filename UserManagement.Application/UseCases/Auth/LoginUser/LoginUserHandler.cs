@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace UserManagement.Application.UseCases.Auth.LoginUser;
 
-public class LoginUserHandler(IRepositoryManager rep, IPasswordHasher<User> passwordHasher) : IRequestHandler<LoginUserUseCase, ApiBaseResponse>
+public class BlockUsersHandler(IRepositoryManager rep, IPasswordHasher<User> passwordHasher) : IRequestHandler<LoginUserUseCase, ApiBaseResponse>
 { 
 	private readonly IPasswordHasher<User> _passwordHasher = passwordHasher;
 	private readonly IRepositoryManager _rep = rep;
