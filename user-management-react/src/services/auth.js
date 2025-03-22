@@ -51,6 +51,8 @@ export const refreshAccessToken = async () => {
 };
 
 export const login = async ({ email, password }) => {
+
+
     const response = await axios.post(`${API_BACKEND_URL}/auth/login`, { email, password }, {
         headers: {
             'Content-Type': 'application/json',

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UserManagement.API.Extensions;
 using UserManagement.Application.DTO.User;
+using UserManagement.Application.Requests;
 using UserManagement.Application.UseCases.Users.BlockUsers;
 using UserManagement.Application.UseCases.Users.GetUsers;
 using UserManagement.Application.UseCases.Users.UnblockUsers;
@@ -28,18 +29,23 @@ public class UsersController(ISender sender) : ControllerBase
 	}
 
 	[HttpPut("block")]	
-	public async Task<IActionResult> BlockUsers([FromBody] IEnumerable<Guid> request)
+	public async Task<IActionResult> BlockUsers([FromBody] UserIdsRequest request)
 	{
-		
-		var response = await _sender.Send(new BlockUsersUseCase(request, TrackChanges: true));
+		var baseResult = await _sender.Send(new BlockUsersUseCase(request, TrackChanges: false));
+
+		var response = baseResult.GetResult<List<Guid>>();
+
 		return Ok(response);
 	}
 
 
 	[HttpPut("unblock")]
-	public async Task<IActionResult> UnblockUsers([FromBody] UnblockUsersUseCase request)
+	public async Task<IActionResult> UnblockUsers([FromBody] UserIdsRequest request)
 	{
-		var response = await _sender.Send(request);
+		var baseResult = await _sender.Send(new UnblockUsersUseCase(request, TrackChanges: false));
+
+		var response = baseResult.GetResult<List<Guid>>();
+
 		return Ok(response); 
 	}
 }

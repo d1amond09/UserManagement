@@ -14,7 +14,7 @@ export const fetchUsers = async () => {
             users: response.data,
         };
     } catch (error) {
-        console.error('Ошибка при получении пользователей:', error);
+        console.error('Error getting users:', error);
         return { users: [], totalPages: 0 };
     }
 };
@@ -23,11 +23,24 @@ export const blockUser = async (userIds) => {
     try {
         const response = await apiFetch(`${API_BACKEND_URL}/users/block`, {
             method: "PUT",
-            data: userIds,
+            data: { userIds },
         });
         return response.data;
     } catch (error) {
-        console.error('Ошибка при блокировки пользователей:', error);
+        console.error('Error blocking users:', error);
+        throw error;
+    }
+};
+
+export const unblockUser = async (userIds) => {
+    try {
+        const response = await apiFetch(`${API_BACKEND_URL}/users/unblock`, {
+            method: "PUT",
+            data: { userIds },
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error blocking users:', error);
         throw error;
     }
 };
