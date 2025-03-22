@@ -14,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.OpenApi.Models;
 
 namespace UserManagement.API.Extensions;
 
@@ -99,6 +100,39 @@ public static class ServiceCollectionExtensions
 		//LogManager.Setup().LoadConfigurationFromFile("nlog.config", true);
 		//builder.Services.AddSingleton<ILoggingService, LoggingService>();
 
+
+		return builder;
+	}
+
+	public static WebApplicationBuilder AddSwaggerConfig(this WebApplicationBuilder builder)
+	{
+		builder.Services.AddSwaggerGen(s =>
+		{
+			s.SwaggerDoc("v1", new OpenApiInfo
+			{
+				Title = "UserManagement API",
+				Version = "v1"
+			});
+			s.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
+			s.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+			{
+				In = ParameterLocation.Header,
+				Description = "Place to add JWT with Bearer",
+				Name = "Authorization",
+				Type = SecuritySchemeType.ApiKey,
+				Scheme = "Bearer"
+			});
+			s.AddSecurityRequirement(new OpenApiSecurityRequirement() { {
+				new OpenApiSecurityScheme {
+					Reference = new OpenApiReference {
+						Type = ReferenceType.SecurityScheme,
+						Id = "Bearer"
+					},
+					Name = "Bearer",
+				},
+				new List<string>()
+			} });
+		});
 
 		return builder;
 	}
