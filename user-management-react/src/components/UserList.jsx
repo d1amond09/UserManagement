@@ -1,21 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { fetchUsers } from '../services/users';
 
 const UserList = () => {
     const [users, setUsers] = useState([]);
 
     useEffect(() => {
-        const fetchUsers = async () => {
-            const response = await axios.get('/api/users');
+        const getUsers = async () => {
+            const response = await fetchUsers();
             setUsers(response.data);
         };
-        fetchUsers();
+        getUsers();
     }, []);
 
-    const handleBlockUser = async (userId) => {
+    const handleBlockUser = async (userIds) => {
         try {
-            await axios.post(`/api/users/block/${userId}`);
-            setUsers(users.filter(user => user.id !== userId));
+            await blockUser(userIds);
         } catch (error) {
             console.error(error);
         }

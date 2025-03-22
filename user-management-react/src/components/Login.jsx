@@ -12,7 +12,7 @@ const Login = () => {
     const location = useLocation();
     const { signIn } = useAuth();
 
-    const fromPage = location.state?.from.pathname || "/";
+    const fromPage = location.state?.from.pathname || "/users";
 
     const handleSubmit = async (e) => {
         e.preventDefault();

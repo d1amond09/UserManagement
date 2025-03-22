@@ -1,17 +1,9 @@
 import { API_BACKEND_URL } from '../config.js';
-import { apiFetch } from './authentication';
+import { apiFetch } from './auth';
 
 export const fetchUsers = async (filter) => {
     try {
         const params = {};
-        if (filter.searchTerm) params.searchTerm = filter.searchTerm;
-
-        if (filter.orderBy) {
-            params.orderBy = filter.orderBy;
-            if (filter.sortOrder) {
-                params.orderBy += ` ${filter.sortOrder}`;
-            }
-        }
 
         const response = await apiFetch(`${API_BACKEND_URL}/users`, {
             method: "GET",
