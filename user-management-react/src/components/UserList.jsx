@@ -1,11 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { fetchUsers } from '../services/users';
 import { format, parseISO } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
+import useAuth from '../hooks/useAuth';
 
 const UserList = () => {
     const [users, setUsers] = useState([]);
+    const { user } = useAuth();
+    const navigate = useNavigate();
 
     useEffect(() => {
+        if (!user) {
+            navigate("/login", { replace: true });
+        }
         const getUsers = async () => {
             const response = await fetchUsers();
             setUsers(response.users);
@@ -22,7 +29,7 @@ const UserList = () => {
     };
 
     return (
-        <div className="vh-100 vw-100 mt-2">
+        <div className="vh-100 vw-100 mt-5">
             <h1 className="text-center mb-4">User Management</h1>
             <div className="table-responsive">
                 <table className="table table-dark table-striped">

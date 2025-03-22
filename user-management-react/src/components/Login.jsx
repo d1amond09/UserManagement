@@ -12,7 +12,7 @@ const Login = () => {
     const location = useLocation();
     const { signIn } = useAuth();
 
-    const fromPage = location.state?.from.pathname || "/users";
+    const fromPage = "/users";
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -23,7 +23,7 @@ const Login = () => {
             if (response.status == 200) {
                 const { accessToken, refreshToken } = await response.data;
                 signIn(accessToken, refreshToken);
-                navigate(fromPage, { replace: true });
+                navigate("/users", { replace: true });
             } else if (response.status === 401) {
                 setError('ERROR Sign In. Please, check your credentials.');
             } else {
