@@ -37,11 +37,11 @@ const Login = () => {
     };
 
     return (
-        <div className="container d-flex justify-content-center align-items-center vh-100 bg-dark text-white">
-            <div className="card p-4" style={{ width: '400px' }}>
-                <h1 className="text-center mb-4">THE APP</h1>
+        <div className="d-flex justify-content-center align-items-center vh-100 vw-100 bg-dark text-white">
+            <div className="card p-4 w-50">
+                <h1 className="text-center mb-4">Sign in</h1>
                 <form onSubmit={handleSubmit}>
-                    <div className="mb-3">
+                    <div className="form-group mb-3">
                         <label htmlFor="email" className="form-label">Email:</label>
                         <input
                             type="email"
@@ -52,7 +52,7 @@ const Login = () => {
                             required
                         />
                     </div>
-                    <div className="mb-3">
+                    <div className="form-group mb-3">
                         <label htmlFor="password" className="form-label">Password:</label>
                         <input
                             type="password"
@@ -63,7 +63,7 @@ const Login = () => {
                             required
                         />
                     </div>
-                    <div className="mb-3 form-check">
+                    <div className="form-group mb-3 form-check">
                         <input
                             type="checkbox"
                             className="form-check-input"

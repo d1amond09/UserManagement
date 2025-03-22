@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { fetchUsers } from '../services/users';
+import { format, parseISO } from 'date-fns';
 
 const UserList = () => {
     const [users, setUsers] = useState([]);
@@ -7,44 +8,55 @@ const UserList = () => {
     useEffect(() => {
         const getUsers = async () => {
             const response = await fetchUsers();
-            setUsers(response.data);
+            setUsers(response.users);
         };
         getUsers();
     }, []);
 
-    const handleBlockUser = async (userIds) => {
+    const handleBlockUser = async (userId) => {
         try {
-            await blockUser(userIds);
+            await blockUser(userId);
         } catch (error) {
             console.error(error);
         }
     };
 
     return (
-        <div className="container mt-5">
-            <h1 className="text-center">User Management</h1>
-            <table className="table table-dark table-striped mt-3">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Last Seen</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {users.map(user => (
-                        <tr key={user.id}>
-                            <td>{user.name}</td>
-                            <td>{user.email}</td>
-                            <td>{user.lastSeen}</td>
-                            <td>
-                                <button className="btn btn-danger" onClick={() => handleBlockUser(user.id)}>Block</button>
-                            </td>
+        <div className="vh-100 vw-100 mt-2">
+            <h1 className="text-center mb-4">User Management</h1>
+            <div className="table-responsive">
+                <table className="table table-dark table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Last Seen</th>
+                            <th scope="col">Registration Time</th>
+                            <th scope="col">Action</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {users.map((user, index) => (
+                            <tr key={user.id}>
+                                <th scope="row">{index + 1}</th>
+                                <td>{user.name}</td>
+                                <td>{user.email}</td>
+                                <td>{format(parseISO(user.lastLogin), 'dd MMM yyyy HH:mm:ss')}</td>
+                                <td>{format(parseISO(user.registrationTime), 'dd MMM yyyy HH:mm:ss')}</td>
+                                <td>
+                                    <button
+                                        className="btn btn-danger"
+                                        onClick={() => handleBlockUser(user.id)}
+                                    >
+                                        Block
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 };

@@ -1,7 +1,7 @@
 import { API_BACKEND_URL } from '../config.js';
 import { apiFetch } from './auth';
 
-export const fetchUsers = async (filter) => {
+export const fetchUsers = async () => {
     try {
         const params = {};
 
@@ -9,9 +9,9 @@ export const fetchUsers = async (filter) => {
             method: "GET",
             params: params,
         });
-
+        console.log(response.data);
         return {
-            employees: response.data,
+            users: response.data,
         };
     } catch (error) {
         console.error('Ошибка при получении пользователей:', error);
