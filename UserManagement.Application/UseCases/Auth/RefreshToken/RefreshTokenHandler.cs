@@ -26,12 +26,11 @@ public class RefreshTokenHandler(IOptionsMonitor<JwtConfiguration> configuration
 		string emailClaim = principal.FindFirst(ClaimTypes.Email)?.Value ?? "";
 		var user = await _rep.Users.GetByEmailAsync(emailClaim, false);
 
-		if (user == null ||
-			user.RefreshToken != request.TokenDto.RefreshToken ||
-			user.RefreshTokenExpiryTime <= DateTime.Now)
-			return new ApiBadRequestResponse("");
-
-		return new ApiOkResponse<User>(user);
+		return user == null || 
+			user.RefreshToken != request.TokenDto.RefreshToken || 
+			user.RefreshTokenExpiryTime <= DateTime.Now ? 
+			new ApiBadRequestResponse("") : 
+			new ApiOkResponse<User>(user);
 	}
 
 	public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
@@ -42,13 +41,12 @@ public class RefreshTokenHandler(IOptionsMonitor<JwtConfiguration> configuration
 			throw new InvalidOperationException("The SECRET configuration value is missing.");
 		}
 
-		var tokenValidationParameters = new TokenValidationParameters
+		var tokenValidParams = new TokenValidationParameters
 		{
 			ValidateAudience = true,
 			ValidateIssuer = true,
 			ValidateIssuerSigningKey = true,
-			IssuerSigningKey = new SymmetricSecurityKey(
-				Encoding.UTF8.GetBytes(secretValue)),
+			IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretValue)),
 			ValidateLifetime = true,
 			ValidIssuer = JwtConfiguration.ValidIssuer,
 			ValidAudience = JwtConfiguration.ValidAudience
@@ -56,16 +54,11 @@ public class RefreshTokenHandler(IOptionsMonitor<JwtConfiguration> configuration
 
 		var tokenHandler = new JwtSecurityTokenHandler();
 		var principal = tokenHandler
-			.ValidateToken(
-				token,
-				tokenValidationParameters,
+			.ValidateToken(token, tokenValidParams,
 				out SecurityToken securityToken);
 
-		if (securityToken is not JwtSecurityToken jwtSecurityToken ||
-			!jwtSecurityToken.Header.Alg.Equals(
-				SecurityAlgorithms.HmacSha256,
-				StringComparison.InvariantCultureIgnoreCase)
-			)
+		if (securityToken is not JwtSecurityToken jwtSecurityToken || 
+			jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
 		{
 			throw new SecurityTokenException("Invalid token");
 		}

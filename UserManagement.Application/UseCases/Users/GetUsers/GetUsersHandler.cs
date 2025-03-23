@@ -14,7 +14,7 @@ class GetUsersHandler(IRepositoryManager rep, IMapper mapper) :
 
 	public async Task<ApiBaseResponse> Handle(GetUsersUseCase request, CancellationToken cancellationToken)
 	{
-		var users = await _rep.Users.GetAllAsync(request.TrackChanges);
+		var users = await _rep.Users.GetAllAsync(request.UserParams, request.TrackChanges);
 
 		var usersDto = _mapper.Map<IEnumerable<UserDto>>(users);
 

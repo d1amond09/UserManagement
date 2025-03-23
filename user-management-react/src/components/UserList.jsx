@@ -12,14 +12,18 @@ const UserList = () => {
     const [statusMessage, setStatusMessage] = useState('');
     const { user } = useAuth();
     const navigate = useNavigate();
+    const [searchTerm, setSearchTerm] = useState('');
+    const [orderBy, setOrderBy] = useState('name');
+    const [sortOrder, setSortOrder] = useState('asc');
 
     useEffect(() => {
         const getUsers = async () => {
-            const response = await fetchUsers();
+            const filter = { searchTerm, orderBy, sortOrder };
+            const response = await fetchUsers(filter);
             setUsers(response.users);
         };
         getUsers();
-    }, [user, navigate]);
+    }, [navigate, searchTerm, orderBy, sortOrder]);
 
     const handleToggleUserSelection = (userId) => {
         const updatedSelection = new Set(selectedUsers);
@@ -34,10 +38,12 @@ const UserList = () => {
     const handleBlockUsers = async () => {
         try {
             const userIds = Array.from(selectedUsers);
-            console.log(userIds);
             await blockUser(userIds);
             setStatusMessage('Users have been successfully blocked.');
             await refreshUsers();
+            if (user && userIds.includes(user.id)) {
+                navigate("/login");
+            }
         } catch (error) {
             setStatusMessage('Error blocking users.');
         }
@@ -46,7 +52,6 @@ const UserList = () => {
     const handleUnblockUsers = async () => {
         try {
             const userIds = Array.from(selectedUsers);
-            console.log(userIds);
             await unblockUser(userIds);
             setStatusMessage('Users have been successfully unblocked.');
             await refreshUsers();
@@ -57,11 +62,18 @@ const UserList = () => {
 
     const handleDeleteUsers = async () => {
         try {
+            let deleteMySelf = false;
             for (const userId of selectedUsers) {
+                if (user && user.id == userId) {
+                    deleteMySelf = true;
+                }
                 await deleteUser(userId);
             }
             setStatusMessage('Users have been successfully deleted.');
             await refreshUsers();
+            if (deleteMySelf) {
+                navigate("/login");
+            }
         } catch (error) {
             setStatusMessage('Error deleting users.');
         }
@@ -74,10 +86,11 @@ const UserList = () => {
     };
 
     return (
-        <div className="vh-100 vw-100">
-            <h1 className="text-center mb-4">User Management</h1>
-            {statusMessage && <div className="alert alert-info">{statusMessage}</div>}
-            <div className="m-2">
+        <div className="vh-100 vw-100 bg-dark">
+            <h1 className="text-center text-light">User Management</h1>
+            {statusMessage && <div className="position-absolute alert alert-info text-center" style={{ top: '75px', left: '50%', transform: 'translateX(-50%)', zIndex: 1 }}>{statusMessage}</div>}
+
+            <div className="m-3 mt-5 d-flex align-items-center">
                 <button className="btn btn-warning me-2" onClick={handleBlockUsers}>
                     Block
                 </button>
@@ -93,17 +106,48 @@ const UserList = () => {
                     placement="top"
                     overlay={<Tooltip id="delete-tooltip">Delete selected users</Tooltip>}
                 >
-                    <button className="btn btn-danger" onClick={handleDeleteUsers}>
-                       <Icon.Trash/>
+                    <button className="btn btn-danger me-2" onClick={handleDeleteUsers}>
+                        <Icon.Trash />
                     </button>
                 </OverlayTrigger>
+                <select
+                    value={orderBy}
+                    onChange={(e) => setOrderBy(e.target.value)}
+                    className="form-select me-2"
+                    style={{ width: 'auto' }} 
+                >
+                    <option value="name">Name</option>
+                    <option value="email">Email</option>
+                    <option value="registrationTime">Registration Time</option>
+                    <option value="lastLogin">Last Seen</option>
+                    <option value="isBlocked">Status</option>
+                </select>
+                <select
+                    value={sortOrder}
+                    onChange={(e) => setSortOrder(e.target.value)}
+                    className="form-select me-2"
+                    style={{ width: 'auto' }}  
+                >
+                    <option value="asc">Ascending</option>
+                    <option value="desc">Descending</option>
+                </select>
+                <input
+                    type="text"
+                    placeholder="Search by name..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="form-control"
+                    style={{ width: 'auto' }} 
+                />
             </div>
-            <div className="table-responsive m-1">
-                <table className="table table-dark table-striped">
+
+            <div className="table-responsive m-3">
+                <table className="table table-dark table-striped table-hover">
                     <thead>
                         <tr>
                             <th scope="col">
                                 <input
+                                    className="form-check-input"
                                     type="checkbox"
                                     onChange={(e) => {
                                         if (e.target.checked) {
@@ -122,10 +166,11 @@ const UserList = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {users.map((user, index) => (
+                        {users.map((user) => (
                             <tr key={user.id}>
                                 <td>
                                     <input
+                                        className="form-check-input"
                                         type="checkbox"
                                         checked={selectedUsers.has(user.id)}
                                         onChange={() => handleToggleUserSelection(user.id)}
