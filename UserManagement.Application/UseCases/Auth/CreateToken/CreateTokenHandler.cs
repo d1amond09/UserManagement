@@ -6,7 +6,6 @@ using System.IdentityModel.Tokens.Jwt;
 using UserManagement.Application.DTO;
 using Microsoft.IdentityModel.Tokens;
 using UserManagement.Domain.Entities;
-using Microsoft.AspNetCore.Identity;
 using System.Security.Cryptography;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
@@ -15,23 +14,13 @@ using MediatR;
 
 namespace UserManagement.Application.UseCases.Auth.CreateToken;
 
-public class CreateTokenHandler : IRequestHandler<CreateTokenUseCase, ApiBaseResponse>
+public class CreateTokenHandler(IOptionsMonitor<JwtConfiguration> configuration, IRepositoryManager rep, IConfiguration config) : 
+	IRequestHandler<CreateTokenUseCase, ApiBaseResponse>
 {
-	private readonly IOptionsMonitor<JwtConfiguration> _configuration;
-	private readonly JwtConfiguration _jwtConfiguration;
-	private readonly IRepositoryManager _rep;
-	private readonly IConfiguration _config;
-
-	public CreateTokenHandler(
-		IOptionsMonitor<JwtConfiguration> configuration,
-		IRepositoryManager rep,
-		IConfiguration config)
-	{
-		_rep = rep;
-		_configuration = configuration;
-		_jwtConfiguration = _configuration.Get("JwtSettings");
-		_config = config;
-	}
+	private readonly IOptionsMonitor<JwtConfiguration> _configuration = configuration;
+	private readonly IRepositoryManager _rep = rep;
+	private readonly IConfiguration _config = config;
+	private JwtConfiguration JwtConfiguration => _configuration.Get("JwtSettings");
 
 	public async Task<ApiBaseResponse> Handle(CreateTokenUseCase request, CancellationToken cancellationToken)
 	{
@@ -68,11 +57,10 @@ public class CreateTokenHandler : IRequestHandler<CreateTokenUseCase, ApiBaseRes
 		List<Claim> claims)
 	{
 		var tokenOptions = new JwtSecurityToken(
-			issuer: _jwtConfiguration.ValidIssuer,
-			audience: _jwtConfiguration.ValidAudience,
+			issuer: JwtConfiguration.ValidIssuer,
+			audience: JwtConfiguration.ValidAudience,
 			claims: claims,
-			expires: DateTime.Now
-				.AddMinutes(Convert.ToDouble(_jwtConfiguration.Expires)),
+			expires: DateTime.Now.AddMinutes(Convert.ToDouble(JwtConfiguration.Expires)),
 			signingCredentials: signingCredentials
 		);
 
@@ -96,7 +84,7 @@ public class CreateTokenHandler : IRequestHandler<CreateTokenUseCase, ApiBaseRes
 	{
 		var claims = new List<Claim>
 		{
-			new (ClaimTypes.NameIdentifier, user.Id.ToString()),
+			new (ClaimTypes.NameIdentifier, $"{user.Id}"),
 			new (ClaimTypes.Email, user.Email),
 			new (ClaimTypes.Name, user.Name),
 		};

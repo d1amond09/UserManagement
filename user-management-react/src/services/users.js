@@ -3,18 +3,10 @@ import { apiFetch } from './auth';
 
 export const fetchUsers = async () => {
     try {
-        const params = {};
-
-        const response = await apiFetch(`${API_BACKEND_URL}/users`, {
-            method: "GET",
-            params: params,
-        });
-        console.log(response.data);
-        return {
-            users: response.data,
-        };
+        const response = await apiFetch(`${API_BACKEND_URL}/users`, { method: "GET" });
+        return { users: response.data };
     } catch (error) {
-        console.error('Error getting users:', error);
+        console.error('Error fetching users:', error);
         return { users: [], totalPages: 0 };
     }
 };
@@ -52,7 +44,21 @@ export const deleteUser = async (id) => {
         });
         return response.status;
     } catch (error) {
-        console.error('Ошибка при удалении пользователя:', error);
+        console.error('Error deleting user:', error);
+        throw error;
+    }
+};
+
+export const getUser = async (id) => {
+    try {
+        const response = await apiFetch(`${API_BACKEND_URL}/users/${id}`, {
+            method: "GET",
+        });
+        return {
+            user: response.data,
+        };
+    } catch (error) {
+        console.error('Error getting user:', error);
         throw error;
     }
 };

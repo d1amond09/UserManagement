@@ -12,7 +12,6 @@ export default function decodeJwt(token) {
 export function isTokenExpired(token) {
     const decoded = decodeJwt(token);
     if (!decoded) return true;
-
     const currentTime = Date.now() / 1000;
     return decoded.exp < currentTime;
 }

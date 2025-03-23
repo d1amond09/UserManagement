@@ -7,39 +7,39 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
-    const [token, setToken] = useState(localStorage.getItem('token'));
-    const [refreshToken, setRefreshToken] = useState(localStorage.getItem('refreshToken'));
+    const [token, setToken] = useState(localStorage.getItem('token') || "");
     const navigate = useNavigate();
 
     useEffect(() => {
-        initializeUser();
-    }, [token, refreshToken]);
+        checkToken();
+    },[]);
 
-    const initializeUser = async () => {
-        if (token) {
-            const isExpired = isTokenExpired(token);
-            if (isExpired) {
-                const newToken = await refreshAccessToken(refreshToken);
+    const checkToken = async () => {
+        if (token) { 
+            if (isTokenExpired(token)) { 
+                const newToken = await refreshAccessToken(); 
                 if (newToken) {
-                    localStorage.setItem('token', newToken);
-                    setToken(newToken);
-                    setUser(decodeUser(newToken));
+                    localStorage.setItem('token', newToken); 
+                    setToken(newToken); 
+                    setUser(decodeUser(newToken)); 
                 } else {
-                    logout();
+                    logout(); 
                 }
             } else {
-                setUser(decodeUser(token));
+                setUser(decodeUser(token)); 
             }
         } else {
-            setUser(null);
+            setUser(null); 
         }
     };
 
     const decodeUser = (token) => {
         const decoded = decodeJwt(token);
+        if (!decoded) return null;
         return {
-            name: decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'],
-            id: decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'],
+            name: decoded?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] || "",
+            email: decoded?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'] || "",
+            id: decoded?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] || "",
         };
     };
 
@@ -47,26 +47,19 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('token', accessToken);
         localStorage.setItem('refreshToken', newRefreshToken);
         setToken(accessToken);
-        setRefreshToken(newRefreshToken);
         setUser(decodeUser(accessToken));
-        navigate('/');
-    };
-
-    const isAuthenticated = () => {
-        return !!user;
+        return decodeUser(accessToken);
     };
 
     const logout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('refreshToken');
         setToken(null);
-        setRefreshToken(null);
         setUser(null);
-        navigate('/login');
     };
 
     return (
-        <AuthContext.Provider value={{ user, isAuthenticated, signIn, logout }}>
+        <AuthContext.Provider value={{ user, signIn, logout }}>
             {children}
         </AuthContext.Provider>
     );

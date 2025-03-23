@@ -25,7 +25,7 @@ const Register = () => {
 
     return (
         <div className="d-flex justify-content-center align-items-center vh-100 vw-100 bg-dark text-white">
-            <div className="card p-4 w-50">
+            <div className="card p-4 w-50 rounded-5">
                 <h1 className="text-center mb-4">Sign up</h1>
                 {error && <div className="alert alert-danger">{error}</div>}
                 <form onSubmit={handleSubmit}>

@@ -6,6 +6,8 @@ using UserManagement.API.Extensions;
 using UserManagement.Application.DTO.User;
 using UserManagement.Application.Requests;
 using UserManagement.Application.UseCases.Users.BlockUsers;
+using UserManagement.Application.UseCases.Users.DeleteUser;
+using UserManagement.Application.UseCases.Users.GetUser;
 using UserManagement.Application.UseCases.Users.GetUsers;
 using UserManagement.Application.UseCases.Users.UnblockUsers;
 
@@ -24,6 +26,16 @@ public class UsersController(ISender sender) : ControllerBase
 		var baseResult = await _sender.Send(new GetUsersUseCase(TrackChanges: false));
 
 		var response = baseResult.GetResult<IEnumerable<UserDto>>();
+
+		return Ok(response);
+	}
+
+	[HttpGet("{id:guid}")]
+	public async Task<IActionResult> GetUser(Guid id)
+	{
+		var baseResult = await _sender.Send(new GetUserUseCase(id, TrackChanges: false));
+
+		var response = baseResult.GetResult<UserDto>();
 
 		return Ok(response);
 	}
@@ -47,5 +59,13 @@ public class UsersController(ISender sender) : ControllerBase
 		var response = baseResult.GetResult<List<Guid>>();
 
 		return Ok(response); 
+	}
+
+	[HttpDelete("{id:guid}")]
+	public async Task<IActionResult> DeleteUser(Guid id)
+	{
+		await _sender.Send(new DeleteUserUseCase(id, TrackChanges: false));
+
+		return NoContent();
 	}
 }

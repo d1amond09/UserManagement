@@ -11,14 +11,14 @@ public class DeleteEventHandler(IRepositoryManager rep) : IRequestHandler<Delete
 
 	public async Task<ApiBaseResponse> Handle(DeleteUserUseCase request, CancellationToken cancellationToken)
 	{
-		var evntToDelete = await _rep.Users.GetByIdAsync(request.Id, request.TrackChanges);
+		var userToDelete = await _rep.Users.GetByIdAsync(request.Id, request.TrackChanges);
 
-		if (evntToDelete is null)
+		if (userToDelete is null)
 			return new ApiNotFoundResponse($"User is not found by id: {request.Id}");
 
-		_rep.Users.Delete(evntToDelete);
+		_rep.Users.Delete(userToDelete);
 		await _rep.SaveAsync();
 
-		return new ApiOkResponse<User>(evntToDelete);
+		return new ApiOkResponse<User>(userToDelete);
 	}
 }

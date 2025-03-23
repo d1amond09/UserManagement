@@ -10,13 +10,13 @@ const AuthDisplay = () => {
     return (
         <div className="d-flex justify-content-end position-absolute" style={{ top: '10px', right: '10px', zIndex: 1 }}>
             {user ? (
-                <div>
+                <Link to="/login">
                     <button 
                         className={`btn btn-secondary ${color}`}
                         type="button" onClick={logout}>
                         Log out of {name}
                     </button>
-                </div>
+                </Link>
             ) : (
                 <Link to="/login">
                     <button className="btn btn-primary">Sign in</button>

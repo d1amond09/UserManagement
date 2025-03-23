@@ -5,7 +5,7 @@ import axios from 'axios';
 export const apiFetch = async (url, options) => {
     let token = localStorage.getItem('token');
 
-    if (isTokenExpired(token)) {
+    if (token && isTokenExpired(token)) {
         token = await refreshAccessToken();
         if (!token) throw new Error('Unable to refresh token');
     }
@@ -16,61 +16,56 @@ export const apiFetch = async (url, options) => {
         ...options.headers
     };
 
-    const response = await axios({
-        url,
-        headers,
-        ...options,
-    });
-
-    return response;
+    try {
+        const response = await axios({ url, headers, ...options });
+        return response;
+    } catch (error) {
+        handleError(error);
+        throw error;
+    }
 };
 
 export const refreshAccessToken = async () => {
     const refreshToken = localStorage.getItem('refreshToken');
-    const token = localStorage.getItem('token');
     if (!refreshToken) return null;
-
     try {
-        const response = await axios.post(`${API_BACKEND_URL}/token/refresh`, token, {
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-            credentials: 'include'
-        });
-
+        const response = await axios.post(`${API_BACKEND_URL}/token/refresh`, { refreshToken });
         const { accessToken } = response.data;
         localStorage.setItem('token', accessToken);
         return accessToken;
     } catch (error) {
-        console.error('Ошибка при обновлении токена:', error);
-        localStorage.removeItem('token');
-        localStorage.removeItem('refreshToken');
+        console.error('Error refreshing token:', error);
         return null;
     }
 };
 
+const handleError = (error) => {
+    if (error.response.status == 401) {
+        return;
+    } 
+    else if (error.response) {
+        console.error('API Error:', error.response.data);
+    } else {
+        console.error('Network Error:', error);
+    }
+};
+
 export const login = async ({ email, password }) => {
-
-
-    const response = await axios.post(`${API_BACKEND_URL}/auth/login`, { email, password }, {
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-        },
-        credentials: 'include'
-    });
-    return response;
-}
+    try {
+        const response = await axios.post(`${API_BACKEND_URL}/auth/login`, { email, password });
+        return response; 
+    } catch (error) {
+        handleError(error);
+        throw error; 
+    }
+};
 
 export const register = async (data) => {
-    const response = await axios.post(`${API_BACKEND_URL}/auth`, data, {
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-        },
-        credentials: 'include'
-    });
-    console.log(data);
-    return response;
-}
+    try {
+        const response = await axios.post(`${API_BACKEND_URL}/auth`, data);
+        return response.data; 
+    } catch (error) {
+        handleError(error);
+        throw error; 
+    }
+};

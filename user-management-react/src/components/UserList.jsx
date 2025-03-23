@@ -19,7 +19,7 @@ const UserList = () => {
             setUsers(response.users);
         };
         getUsers();
-    }, [user, navigate]);
+    }, [navigate]);
 
     const handleToggleUserSelection = (userId) => {
         const updatedSelection = new Set(selectedUsers);
@@ -34,10 +34,12 @@ const UserList = () => {
     const handleBlockUsers = async () => {
         try {
             const userIds = Array.from(selectedUsers);
-            console.log(userIds);
             await blockUser(userIds);
             setStatusMessage('Users have been successfully blocked.');
             await refreshUsers();
+            if (user && userIds.includes(user.id)) {
+                navigate("/login");
+            }
         } catch (error) {
             setStatusMessage('Error blocking users.');
         }
@@ -46,7 +48,6 @@ const UserList = () => {
     const handleUnblockUsers = async () => {
         try {
             const userIds = Array.from(selectedUsers);
-            console.log(userIds);
             await unblockUser(userIds);
             setStatusMessage('Users have been successfully unblocked.');
             await refreshUsers();
@@ -57,11 +58,18 @@ const UserList = () => {
 
     const handleDeleteUsers = async () => {
         try {
+            let deleteMySelf = false;
             for (const userId of selectedUsers) {
+                if (user && user.id == userId) {
+                    deleteMySelf = true;
+                }
                 await deleteUser(userId);
             }
             setStatusMessage('Users have been successfully deleted.');
             await refreshUsers();
+            if (deleteMySelf) {
+                navigate("/login");
+            }
         } catch (error) {
             setStatusMessage('Error deleting users.');
         }
@@ -74,10 +82,10 @@ const UserList = () => {
     };
 
     return (
-        <div className="vh-100 vw-100">
-            <h1 className="text-center mb-4">User Management</h1>
-            {statusMessage && <div className="alert alert-info">{statusMessage}</div>}
-            <div className="m-2">
+        <div className="vh-100 vw-100 bg-dark">
+            <h1 className="text-center text-light">User Management</h1>
+            {statusMessage && <div className="position-absolute alert alert-info text-center" style={{top: '75px', left: '50%', transform: 'translateX(-50%)', zIndex: 1 }}>{statusMessage}</div>}
+            <div className="m-3 mt-5">
                 <button className="btn btn-warning me-2" onClick={handleBlockUsers}>
                     Block
                 </button>
@@ -98,12 +106,13 @@ const UserList = () => {
                     </button>
                 </OverlayTrigger>
             </div>
-            <div className="table-responsive m-1">
-                <table className="table table-dark table-striped">
+            <div className="table-responsive m-3">
+                <table className="table table-dark table-striped table-hover">
                     <thead>
                         <tr>
                             <th scope="col">
                                 <input
+                                    className="form-check-input"
                                     type="checkbox"
                                     onChange={(e) => {
                                         if (e.target.checked) {
@@ -126,6 +135,7 @@ const UserList = () => {
                             <tr key={user.id}>
                                 <td>
                                     <input
+                                        className="form-check-input"
                                         type="checkbox"
                                         checked={selectedUsers.has(user.id)}
                                         onChange={() => handleToggleUserSelection(user.id)}
