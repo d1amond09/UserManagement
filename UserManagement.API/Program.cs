@@ -27,8 +27,10 @@ app.UseHttpsRedirection();
 app.UseForwardedHeaders(new ForwardedHeadersOptions {
 	ForwardedHeaders = ForwardedHeaders.All
 });
+app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapFallbackToFile("index.html");
 app.Run();

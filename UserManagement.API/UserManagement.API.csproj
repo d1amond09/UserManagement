@@ -8,6 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\assets\index-BTGPtEsN.js" />
+    <Content Remove="wwwroot\assets\index-C4P02RkX.css" />
+    <Content Remove="wwwroot\index.html" />
+    <Content Remove="wwwroot\users.svg" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.13" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Negotiate" Version="8.0.13" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.13">
@@ -21,6 +28,13 @@
     <ProjectReference Include="..\UserManagement.Application\UserManagement.Application.csproj" />
     <ProjectReference Include="..\UserManagement.Domain\UserManagement.Domain.csproj" />
     <ProjectReference Include="..\UserManagement.Infrastructure\UserManagement.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\assets\index-BTGPtEsN.js" />
+    <None Include="wwwroot\assets\index-C4P02RkX.css" />
+    <None Include="wwwroot\index.html" />
+    <None Include="wwwroot\users.svg" />
   </ItemGroup>
 
 </Project>
