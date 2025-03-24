@@ -23,7 +23,7 @@ const UserList = () => {
             setUsers(response.users);
         };
         getUsers();
-    }, [navigate, searchTerm, orderBy, sortOrder]);
+    }, [navigate, searchTerm, orderBy, sortOrder, statusMessage]);
 
     const handleToggleUserSelection = (userId) => {
         const updatedSelection = new Set(selectedUsers);
