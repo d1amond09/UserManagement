@@ -1,1 +1,1 @@
-export const API_BACKEND_URL = 'https://localhost:7207/api';
+export const API_BACKEND_URL = 'https://d1amond-user-management.runasp.net/api';
