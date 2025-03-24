@@ -88,8 +88,8 @@ const UserList = () => {
     return (
         <div className="vh-100 vw-100 bg-dark">
             <h1 className="text-center text-light">User Management</h1>
-            {statusMessage && <div className="position-absolute alert alert-info text-center" style={{ top: '75px', left: '50%', transform: 'translateX(-50%)', zIndex: 1 }}>{statusMessage}</div>}
-
+            <br/>
+            {statusMessage && <div className="position-absolute alert alert-info text-center" style={{ top: '65px', left: '50%', transform: 'translateX(-50%)', zIndex: 1 }}>{statusMessage}</div>}
             <div className="m-3 mt-5 d-flex align-items-center">
                 <button className="btn btn-warning me-2" onClick={handleBlockUsers}>
                     Block
