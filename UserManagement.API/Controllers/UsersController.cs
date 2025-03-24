@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MySqlX.XDevAPI.Common;
 using UserManagement.API.Extensions;
 using UserManagement.Application.DTO.User;
 using UserManagement.Application.Requests;
@@ -17,7 +18,7 @@ namespace UserManagement.API.Controllers;
 [Route("api/users")]
 [ApiController]
 [Authorize]
-public class UsersController(ISender sender) : ControllerBase
+public class UsersController(ISender sender) : ApiControllerBase
 {
 	private readonly ISender _sender = sender;
 
@@ -25,6 +26,9 @@ public class UsersController(ISender sender) : ControllerBase
 	public async Task<IActionResult> GetUsers([FromQuery] UserParameters userParams)
 	{
 		var baseResult = await _sender.Send(new GetUsersUseCase(userParams, TrackChanges: false));
+
+		if (!baseResult.Success) 
+			return ProccessError(baseResult);
 
 		var response = baseResult.GetResult<IEnumerable<UserDto>>();
 
@@ -36,15 +40,21 @@ public class UsersController(ISender sender) : ControllerBase
 	{
 		var baseResult = await _sender.Send(new GetUserUseCase(id, TrackChanges: false));
 
+		if (!baseResult.Success)
+			return ProccessError(baseResult);
+
 		var response = baseResult.GetResult<UserDto>();
 
 		return Ok(response);
 	}
 
 	[HttpPut("block")]	
-	public async Task<IActionResult> BlockUsers([FromBody] UserIdsRequest request)
+	public async Task<IActionResult> BlockUsers([FromBody] IEnumerable<string> userIds)
 	{
-		var baseResult = await _sender.Send(new BlockUsersUseCase(request, TrackChanges: false));
+		var baseResult = await _sender.Send(new BlockUsersUseCase(userIds, TrackChanges: false));
+
+		if (!baseResult.Success)
+			return ProccessError(baseResult);
 
 		var response = baseResult.GetResult<List<Guid>>();
 
@@ -53,9 +63,12 @@ public class UsersController(ISender sender) : ControllerBase
 
 
 	[HttpPut("unblock")]
-	public async Task<IActionResult> UnblockUsers([FromBody] UserIdsRequest request)
+	public async Task<IActionResult> UnblockUsers([FromBody] IEnumerable<string> userIds)
 	{
-		var baseResult = await _sender.Send(new UnblockUsersUseCase(request, TrackChanges: false));
+		var baseResult = await _sender.Send(new UnblockUsersUseCase(userIds, TrackChanges: false));
+
+		if (!baseResult.Success)
+			return ProccessError(baseResult);
 
 		var response = baseResult.GetResult<List<Guid>>();
 
@@ -65,7 +78,10 @@ public class UsersController(ISender sender) : ControllerBase
 	[HttpDelete("{id:guid}")]
 	public async Task<IActionResult> DeleteUser(Guid id)
 	{
-		await _sender.Send(new DeleteUserUseCase(id, TrackChanges: false));
+		var baseResult = await _sender.Send(new DeleteUserUseCase(id, TrackChanges: false));
+
+		if (!baseResult.Success)
+			return ProccessError(baseResult);
 
 		return NoContent();
 	}

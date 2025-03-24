@@ -10,7 +10,7 @@ namespace UserManagement.Application.UseCases.Users.UnblockUsers
 
 		public async Task<ApiBaseResponse> Handle(UnblockUsersUseCase request, CancellationToken cancellationToken)
 		{
-			var userIds = request.UnblockUsersRequest.UserIds.Select(Guid.Parse);
+			var userIds = request.UserIds.Select(Guid.Parse);
 			var users = await _rep.Users.GetByIdsAsync(userIds, request.TrackChanges);
 			List<Guid> unblockedUserIds = [];
 

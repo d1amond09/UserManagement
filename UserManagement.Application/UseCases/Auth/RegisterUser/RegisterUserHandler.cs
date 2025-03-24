@@ -17,8 +17,15 @@ public class RegisterUserHandler(IRepositoryManager rep, IMapper mapper, IPasswo
 	{
 		var user = _mapper.Map<User>(request.UserForRegistrationDto);
 		user.Password = _passwordHasher.HashPassword(user, user.Password);
-		await _rep.Users.CreateAsync(user);
-		await _rep.SaveAsync();
+		try
+		{
+			await _rep.Users.CreateAsync(user);
+			await _rep.SaveAsync();
+		}
+		catch
+		{
+			return new NonUniqueEmailBadRequestResponse();
+		}
 		return new ApiOkResponse<User>(user);
 	}
 }

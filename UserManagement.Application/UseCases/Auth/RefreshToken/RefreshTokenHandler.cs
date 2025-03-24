@@ -3,8 +3,10 @@ using UserManagement.Domain.ConfigurationModels;
 using UserManagement.Application.Responses;
 using Microsoft.Extensions.Configuration;
 using System.IdentityModel.Tokens.Jwt;
+using UserManagement.Application.DTO;
 using Microsoft.IdentityModel.Tokens;
 using UserManagement.Domain.Entities;
+using System.Security.Cryptography;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
 using System.Text;
@@ -12,28 +14,60 @@ using MediatR;
 
 namespace UserManagement.Application.UseCases.Auth.RefreshToken;
 
-public class RefreshTokenHandler(IOptionsMonitor<JwtConfiguration> configuration, IConfiguration config, IRepositoryManager rep) :
+public class RefreshTokenHandler(IOptionsMonitor<JwtConfiguration> configuration, IRepositoryManager rep, IConfiguration config) : 
 	IRequestHandler<RefreshTokenUseCase, ApiBaseResponse>
 {
 	private readonly IOptionsMonitor<JwtConfiguration> _configuration = configuration;
-	private readonly IConfiguration _config = config;
 	private readonly IRepositoryManager _rep = rep;
-	public JwtConfiguration JwtConfiguration => _configuration.Get("JwtSettings");
+	private readonly IConfiguration _config = config;
+	private JwtConfiguration JwtConfiguration => _configuration.Get("JwtSettings");
 
 	public async Task<ApiBaseResponse> Handle(RefreshTokenUseCase request, CancellationToken cancellationToken)
 	{
-		var principal = GetPrincipalFromExpiredToken(request.TokenDto.AccessToken);
-		string emailClaim = principal.FindFirst(ClaimTypes.Email)?.Value ?? "";
-		var user = await _rep.Users.GetByEmailAsync(emailClaim, false);
+		var signingCredentials = GetSigningCredentials();
+		var claims = GetClaims(request.User);
+		var tokenOptions = GenerateTokenOptions(signingCredentials, claims);
 
-		return user == null || 
-			user.RefreshToken != request.TokenDto.RefreshToken || 
-			user.RefreshTokenExpiryTime <= DateTime.Now ? 
-			new ApiBadRequestResponse("") : 
-			new ApiOkResponse<User>(user);
+		var refreshToken = GenerateRefreshToken();
+
+		request.User.RefreshToken = refreshToken;
+
+		if (request.PopulateExp)
+			request.User.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+
+		_rep.Users.Update(request.User);
+		await _rep.SaveAsync();
+
+		var accessToken = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
+		var tokenDto = new TokenDto(accessToken, refreshToken);
+
+		return new ApiOkResponse<TokenDto>(tokenDto);
 	}
 
-	public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
+	private string GenerateRefreshToken()
+	{
+		var randomNumber = new byte[32];
+		using var rng = RandomNumberGenerator.Create();
+		rng.GetBytes(randomNumber);
+		return Convert.ToBase64String(randomNumber);
+	}
+
+	private JwtSecurityToken GenerateTokenOptions(
+		SigningCredentials signingCredentials,
+		List<Claim> claims)
+	{
+		var tokenOptions = new JwtSecurityToken(
+			issuer: JwtConfiguration.ValidIssuer,
+			audience: JwtConfiguration.ValidAudience,
+			claims: claims,
+			expires: DateTime.Now.AddMinutes(Convert.ToDouble(JwtConfiguration.Expires)),
+			signingCredentials: signingCredentials
+		);
+
+		return tokenOptions;
+	}
+
+	private SigningCredentials GetSigningCredentials()
 	{
 		var secretValue = _config["JWT_SECRET_KEY"] ?? Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
 		if (string.IsNullOrEmpty(secretValue))
@@ -41,28 +75,20 @@ public class RefreshTokenHandler(IOptionsMonitor<JwtConfiguration> configuration
 			throw new InvalidOperationException("The SECRET configuration value is missing.");
 		}
 
-		var tokenValidParams = new TokenValidationParameters
+		var key = Encoding.UTF8.GetBytes(secretValue);
+		var secret = new SymmetricSecurityKey(key);
+		return new SigningCredentials(secret, SecurityAlgorithms.HmacSha256);
+	}
+
+	private List<Claim> GetClaims(User user)
+	{
+		var claims = new List<Claim>
 		{
-			ValidateAudience = true,
-			ValidateIssuer = true,
-			ValidateIssuerSigningKey = true,
-			IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretValue)),
-			ValidateLifetime = true,
-			ValidIssuer = JwtConfiguration.ValidIssuer,
-			ValidAudience = JwtConfiguration.ValidAudience
+			new (ClaimTypes.NameIdentifier, $"{user.Id}"),
+			new (ClaimTypes.Email, user.Email),
+			new (ClaimTypes.Name, user.Name),
 		};
 
-		var tokenHandler = new JwtSecurityTokenHandler();
-		var principal = tokenHandler
-			.ValidateToken(token, tokenValidParams,
-				out SecurityToken securityToken);
-
-		if (securityToken is not JwtSecurityToken jwtSecurityToken || 
-			jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
-		{
-			throw new SecurityTokenException("Invalid token");
-		}
-
-		return principal;
+		return claims;
 	}
 }

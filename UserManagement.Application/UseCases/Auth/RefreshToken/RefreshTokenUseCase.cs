@@ -1,8 +1,8 @@
 ﻿using UserManagement.Application.Responses;
-using UserManagement.Application.DTO;
+using UserManagement.Domain.Entities;
 using MediatR;
 
 namespace UserManagement.Application.UseCases.Auth.RefreshToken;
 
-public sealed record RefreshTokenUseCase(TokenDto TokenDto) :
+public sealed record RefreshTokenUseCase(User User, bool PopulateExp) :
 	IRequest<ApiBaseResponse>;

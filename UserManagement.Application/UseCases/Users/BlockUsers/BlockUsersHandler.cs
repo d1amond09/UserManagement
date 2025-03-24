@@ -10,7 +10,7 @@ namespace UserManagement.Application.UseCases.Users.BlockUsers
 
 		public async Task<ApiBaseResponse> Handle(BlockUsersUseCase request, CancellationToken cancellationToken)
 		{
-			var userIds = request.BlockUsersRequest.UserIds.Select(Guid.Parse);
+			var userIds = request.UserIds.Select(Guid.Parse);
 			var users = await _rep.Users.GetByIdsAsync(userIds, request.TrackChanges);
 			List<Guid> blockedUserIds = [];
 

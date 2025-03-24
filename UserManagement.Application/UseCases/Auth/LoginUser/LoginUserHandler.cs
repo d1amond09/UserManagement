@@ -13,14 +13,22 @@ public class BlockUsersHandler(IRepositoryManager rep, IPasswordHasher<User> pas
 
 	public async Task<ApiBaseResponse> Handle(LoginUserUseCase request, CancellationToken cancellationToken)
 	{
-		User? user = await _rep.Users.GetByEmailAsync(request.UserToLogin.Email, request.TrackChanges) ?? null;
-		ArgumentNullException.ThrowIfNull(user);
+		User? user = await _rep.Users.GetByEmailAsync(request.UserToLogin.Email, request.TrackChanges);
+
+		if (user == null)
+			return new InvalidCredentialsBadRequestResponse();
+
+		if (user.IsBlocked)
+			return new UserBlockedBadRequestResponse();
 
 		bool isValid = VerifyHashedPassword(user, request.UserToLogin.Password);
 		await SaveDateLastLogin(user, isValid);
 
-		(bool, User?) result = new(isValid, user);
-		return new ApiOkResponse<(bool, User?)>(result);
+		if (!isValid)
+			return new InvalidCredentialsBadRequestResponse();
+
+		(bool, User) result = new(isValid, user);
+		return new ApiOkResponse<(bool, User)>(result);
 	}
 
 	private async Task SaveDateLastLogin(User user, bool isValid)

@@ -1,26 +1,23 @@
-﻿using MediatR;
-using Microsoft.AspNetCore.Http.Features;
-using Microsoft.AspNetCore.Identity;
-using System.Data;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using UserManagement.Application.DTO.User;
 using UserManagement.Application;
 using UserManagement.Domain.ConfigurationModels;
 using UserManagement.Domain.Contracts.Persistence;
 using UserManagement.Domain.Entities;
 using UserManagement.Infrastructure.Persistence;
 using UserManagement.Infrastructure.Persistence.Repositories;
-using Microsoft.Extensions.DependencyInjection;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
+using UserManagement.API.GlobalException;
 
 namespace UserManagement.API.Extensions;
 
 public static class ServiceCollectionExtensions
 {
 	private const string CONFIG_CONNECTION_STRING = "DefaultConnection";
+	private const string JWT_SECRET_KEY = "JWT_SECRET_KEY";
 
 	public static WebApplicationBuilder AddDataBase(this WebApplicationBuilder builder)
 	{
@@ -52,6 +49,7 @@ public static class ServiceCollectionExtensions
 	{
 		builder.Services.AddControllers();
 		builder.Services.AddAuthentication();
+		builder.Services.AddProblemDetails();
 
 		builder.Services.AddAutoMapper(x => x.AddProfile(new MappingProfile()));
 		builder.Services.AddMediatR(cfg =>
@@ -60,6 +58,7 @@ public static class ServiceCollectionExtensions
 		builder.Services.AddScoped<IRepositoryManager, RepositoryManager>();
 		builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
+		builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 		return builder;
 	}
 
@@ -68,7 +67,7 @@ public static class ServiceCollectionExtensions
 		var jwtConfiguration = new JwtConfiguration();
 		builder.Configuration.Bind(jwtConfiguration.Section, jwtConfiguration);
 
-		var secretKey = builder.Configuration.GetValue<string>("JWT_SECRET_KEY") ?? Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
+		var secretKey = builder.Configuration.GetValue<string>(JWT_SECRET_KEY) ?? Environment.GetEnvironmentVariable(JWT_SECRET_KEY);
 		ArgumentNullException.ThrowIfNull(secretKey);
 
 		builder.Services
@@ -97,9 +96,6 @@ public static class ServiceCollectionExtensions
 
 	public static WebApplicationBuilder AddInfrastructureServices(this WebApplicationBuilder builder)
 	{
-		//LogManager.Setup().LoadConfigurationFromFile("nlog.config", true);
-		//builder.Services.AddSingleton<ILoggingService, LoggingService>();
-
 
 		return builder;
 	}
