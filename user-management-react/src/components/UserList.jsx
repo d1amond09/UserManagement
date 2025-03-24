@@ -10,7 +10,7 @@ const UserList = () => {
     const [users, setUsers] = useState([]);
     const [selectedUsers, setSelectedUsers] = useState(new Set());
     const [statusMessage, setStatusMessage] = useState('');
-    const { user } = useAuth();
+    const { user, logout } = useAuth();
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
     const [orderBy, setOrderBy] = useState('name');
@@ -24,16 +24,6 @@ const UserList = () => {
         };
         getUsers();
     }, [navigate, searchTerm, orderBy, sortOrder, selectedUsers]);
-
-    useEffect(() => {
-        if (statusMessage) {
-            const timer = setTimeout(() => {
-                setStatusMessage('');
-            }, 3000);
-
-            return () => clearTimeout(timer);
-        }
-    }, [statusMessage]);
 
     const handleToggleUserSelection = (userId) => {
         const updatedSelection = new Set(selectedUsers);
@@ -52,7 +42,7 @@ const UserList = () => {
             setStatusMessage('Users have been successfully blocked.');
             await refreshUsers();
             if (user && userIds.includes(user.id)) {
-                navigate("/login");
+                logout();
             }
         } catch (error) {
             setStatusMessage('Error blocking users.');
@@ -82,7 +72,7 @@ const UserList = () => {
             setStatusMessage('Users have been successfully deleted.');
             await refreshUsers();
             if (deleteMySelf) {
-                navigate("/login");
+                logout();
             }
         } catch (error) {
             setStatusMessage('Error deleting users.');
