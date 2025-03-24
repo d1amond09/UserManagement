@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 import { login } from '../services/auth';
-import { getUser } from '../services/users';
 import { useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
 
 const Login = () => {
-    const [rememberMe, setRememberMe] = useState(false);
     const [password, setPassword] = useState('');
     const [email, setEmail] = useState('');
     const { signIn, logout } = useAuth();
@@ -32,7 +30,7 @@ const Login = () => {
     return (
         <div className="d-flex justify-content-center align-items-center vh-100 vw-100 bg-dark text-white">
             {statusMessage && <div className="position-absolute alert alert-danger text-center" style={{ top: '75px', left: '50%', transform: 'translateX(-50%)', zIndex: 1 }}>{statusMessage}</div>}
-            <div className="card p-4 w-50 rounded-5">
+            <div className="card p-4 w-75 rounded-5">
                 <h1 className="text-center mb-4">Sign in</h1>
                 <form onSubmit={handleSubmit}>
                     <div className="form-group mb-3">
@@ -56,16 +54,6 @@ const Login = () => {
                             onChange={(e) => setPassword(e.target.value)}
                             required
                         />
-                    </div>
-                    <div className="form-group mb-3 form-check">
-                        <input
-                            type="checkbox"
-                            className="form-check-input"
-                            id="rememberMe"
-                            checked={rememberMe}
-                            onChange={() => setRememberMe(!rememberMe)}
-                        />
-                        <label className="form-check-label" htmlFor="rememberMe">Remember me</label>
                     </div>
                     <button type="submit" className="btn btn-primary w-100">Sign in</button>
                 </form>
