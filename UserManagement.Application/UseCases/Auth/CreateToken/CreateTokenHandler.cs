@@ -69,7 +69,7 @@ public class CreateTokenHandler(IOptionsMonitor<JwtConfiguration> configuration,
 
 	private SigningCredentials GetSigningCredentials()
 	{
-		var secretValue = _config["JWT_SECRET_KEY"];
+		var secretValue = _config["JWT_SECRET_KEY"] ?? Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
 		if (string.IsNullOrEmpty(secretValue))
 		{
 			throw new InvalidOperationException("The SECRET configuration value is missing.");

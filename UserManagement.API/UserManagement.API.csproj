@@ -37,4 +37,8 @@
     <None Include="wwwroot\users.svg" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Properties\PublishProfiles\" />
+  </ItemGroup>
+
 </Project>

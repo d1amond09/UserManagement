@@ -35,7 +35,7 @@ public class RefreshTokenHandler(IOptionsMonitor<JwtConfiguration> configuration
 
 	public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
 	{
-		var secretValue = _config["JWT_SECRET_KEY"];
+		var secretValue = _config["JWT_SECRET_KEY"] ?? Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
 		if (string.IsNullOrEmpty(secretValue))
 		{
 			throw new InvalidOperationException("The SECRET configuration value is missing.");
