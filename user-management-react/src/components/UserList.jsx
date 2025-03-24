@@ -25,6 +25,16 @@ const UserList = () => {
         getUsers();
     }, [navigate, searchTerm, orderBy, sortOrder, selectedUsers]);
 
+    useEffect(() => {
+        if (statusMessage) {
+            const timer = setTimeout(() => {
+                setStatusMessage('');
+            }, 3000);
+
+            return () => clearTimeout(timer);
+        }
+    }, [statusMessage]);
+
     const handleToggleUserSelection = (userId) => {
         const updatedSelection = new Set(selectedUsers);
         if (updatedSelection.has(userId)) {
