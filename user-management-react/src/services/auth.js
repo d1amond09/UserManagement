@@ -1,4 +1,4 @@
-import { isTokenExpired } from '../utils/jwtUtils';
+import { isTokenExpired } from '../utils/JwtUtils';
 import { API_BACKEND_URL } from '../config.js';
 import axios from 'axios';
 
