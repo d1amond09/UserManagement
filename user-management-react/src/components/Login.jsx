@@ -30,7 +30,7 @@ const Login = () => {
     return (
         <div className="d-flex justify-content-center align-items-center vh-100 vw-100 bg-dark text-white">
             {statusMessage && <div className="position-absolute alert alert-danger text-center" style={{ top: '75px', left: '50%', transform: 'translateX(-50%)', zIndex: 1 }}>{statusMessage}</div>}
-            <div className="card p-4 w-75 rounded-5">
+            <div className="card p-4 w-50 rounded-5">
                 <h1 className="text-center mb-4">Sign in</h1>
                 <form onSubmit={handleSubmit}>
                     <div className="form-group mb-3">
