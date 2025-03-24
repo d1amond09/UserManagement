@@ -43,6 +43,7 @@ const UserList = () => {
             await refreshUsers();
             if (user && userIds.includes(user.id)) {
                 logout();
+                navigate("/login");
             }
         } catch (error) {
             setStatusMessage('Error blocking users.');
@@ -73,6 +74,7 @@ const UserList = () => {
             await refreshUsers();
             if (deleteMySelf) {
                 logout();
+                navigate("/login");
             }
         } catch (error) {
             setStatusMessage('Error deleting users.');
