@@ -14,12 +14,12 @@ public class ApiControllerBase : ControllerBase
 			ApiNotFoundResponse => NotFound(new ErrorDetails
 			{
 				Message = ((ApiNotFoundResponse)baseResponse).Message,
-				StatusCode = StatusCodes.Status404NotFound
+				Status = StatusCodes.Status404NotFound
 			}),
 			ApiBadRequestResponse response => BadRequest(new ErrorDetails
 			{
 				Message = response.Message,
-				StatusCode = StatusCodes.Status400BadRequest
+				Status = StatusCodes.Status400BadRequest
 			}),
 			_ => throw new NotImplementedException()
 		};

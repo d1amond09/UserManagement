@@ -14,20 +14,18 @@ const Register = () => {
         setError('');
 
         try {
-            const response = await register({ name, email, password });
-            console.log(response.data);
+            await register({ name, email, password });
             navigate('/login');
         } catch (err) {
-            console.error(err);
-            setError('ERROR. Please, try later...');
+            setError(err.response.data.message);
         }
     };
 
     return (
         <div className="d-flex justify-content-center align-items-center vh-100 vw-100 bg-dark text-white">
+            {error && <div className="position-absolute alert alert-danger text-center" style={{ top: '75px', left: '50%', transform: 'translateX(-50%)', zIndex: 1 }}>{error}</div>}
             <div className="card p-4 w-50 rounded-5">
                 <h1 className="text-center mb-4">Sign up</h1>
-                {error && <div className="alert alert-danger">{error}</div>}
                 <form onSubmit={handleSubmit}>
                     <div className="mb-3">
                         <label htmlFor="name" className="form-label">Name:</label>

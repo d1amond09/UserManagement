@@ -21,28 +21,11 @@ const Login = () => {
             const response = await login({ email, password });
             if (response.status == 200) {
                 const { accessToken, refreshToken } = response.data;
-                const user = signIn(accessToken, refreshToken);
-                const responseGetUser = await getUser(user.id);
-
-                if (responseGetUser.user.isBlocked) {
-                    setStatusMessage('ERROR Sign In. You are blocked.');
-                    logout();
-                    navigate("/login");
-                    return;
-                }
-                else {
-                    navigate("/users", { replace: true });
-                }
-
+                signIn(accessToken, refreshToken);
+                navigate("/users", { replace: true });
             }
         } catch (err) {
-            if (err.response.status == 401) {
-                setStatusMessage('ERROR Sign In. Please, check your credentials.');
-            } else {
-                const data = err.response.data;
-                setStatusMessage(data || 'ERROR. Please, try later...');
-            }
-            console.error(err);
+            setStatusMessage(err.response.data.message);
         }
     };
 
